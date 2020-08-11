@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  tickets:
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    volumes:
+      - .:/var/www
+      - tickets-tmp:/var/www/tmp
+    ports:
+      - 9000:80
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    volumes:
+      - database:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: email_tickets
+
+volumes:
+  tickets-tmp:
+  database:
+
