@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [[ ! -d "$SERVICE_PATH/tmp/imap/attachments" ]]; then
+    mkdir -p "$SERVICE_PATH/tmp/imap/attachments"
+fi
+
+HAS_WAIT_FOR_IT="$(which wait-for-it)"
+
+if [[ "$HAS_WAIT_FOR_IT" != "" ]]; then
+    cd $SERVICE_PATH
+    wait-for-it -t 3600 $DB_HOST_PORT -- php bin/console doctrine:migrations:migrate -n
+fi
+
+printenv | grep -v "no_proxy" >> /etc/environment
+
+docker-php-entrypoint "$@"

@@ -1,15 +1,31 @@
-FROM php:7.4-apache
+FROM php:7.4-cli-buster
 
 RUN apt-get update -y \
-    && apt-get install -y curl wget libicu-dev git \
+    && apt-get install -y libc-client2007e-dev libkrb5-dev curl wget libicu-dev git cron wait-for-it \
     && mv /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini \
-    && docker-php-ext-install intl opcache \
-    && a2enmod rewrite
+    && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
+    && docker-php-ext-install pdo_mysql imap iconv fileinfo intl opcache
 
-WORKDIR /var/www
-
-COPY ./docker/000-default.conf /etc/apache2/sites-available/000-default.conf
+COPY ./docker/docker-service-entrypoint /usr/local/bin/
+COPY ./docker/app-command /usr/local/bin/
+COPY ./docker/crontab /etc/cron.d/
 
 RUN wget https://get.symfony.com/cli/installer -O - | bash \
     && mv /root/.symfony/bin/symfony /usr/local/bin/symfony \
-    && symfony check:requirements
+    && symfony check:requirements \
+    && chmod +x /usr/local/bin/docker-service-entrypoint \
+    && chmod +x /usr/local/bin/app-command \
+    && touch /var/log/cron.log \
+    && crontab /etc/cron.d/crontab \
+    && mkdir /service \
+    && rm /etc/cron.d/crontab
+
+ENV USE_ZEND_ALLOC 0
+ENV DB_HOST_PORT "db:3306"
+ENV SERVICE_PATH "/service"
+
+WORKDIR /service
+
+ENTRYPOINT ["docker-service-entrypoint"]
+
+CMD cron -f

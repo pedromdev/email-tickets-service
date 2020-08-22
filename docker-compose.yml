@@ -5,20 +5,31 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-dev
+    environment:
+      MAX_ATTEMPTS: 5
+      WEBHOOK_ENDPOINT: "http://mock_api/mock/endpoint/request"
     volumes:
-      - .:/var/www
-      - tickets-tmp:/var/www/tmp
-    ports:
-      - 9000:80
+      - .:/service
+      - tickets-tmp:/service/tmp
+    depends_on:
+      - db
   db:
     image: mysql
     command: --default-authentication-plugin=mysql_native_password
     restart: always
+    cap_add:
+      - SYS_NICE
+    ports:
+      - 3306:3306
     volumes:
       - database:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: email_tickets
+  mock_api:
+    image: reachfive/fake-api-server
+    environment:
+      PORT: 80
 
 volumes:
   tickets-tmp:
