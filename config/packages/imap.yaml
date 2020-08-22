@@ -1,0 +1,7 @@
+imap:
+    connections:
+        default_connection:
+            mailbox: "%env(resolve:IMAP_HOST)%"
+            username: "%env(resolve:IMAP_USERNAME)%"
+            password: "%env(resolve:IMAP_PASSWORD)%"
+            attachments_dir: "%kernel.project_dir%/tmp/imap/attachments"
