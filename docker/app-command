@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd "$SERVICE_PATH"
+
+php bin/console "app:$1"

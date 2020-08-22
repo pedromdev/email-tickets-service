@@ -1,0 +1,6 @@
+SHELL=/bin/bash
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
+
+* * * * * app-command retrieve-emails >> /var/log/cron.log 2>&1
+*/5 * * * * app-command send-contract-emails >> /var/log/cron.log 2>&1
+0 0 * * * app-command clear-old-messages >> /var/log/cron.log 2>&1

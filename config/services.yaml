@@ -29,3 +29,36 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    app.message_received_repository:
+        class: App\Repository\MessageReceivedRepository
+
+    app.retrieve_contract_emails_service:
+        class: App\Service\RetrieveContractEmailsService
+        arguments: [
+            '@secit.imap',
+            '@doctrine.orm.default_entity_manager',
+            '%env(resolve:IMAP_USERNAME)%'
+        ]
+
+    App\Service\RetrieveContractEmailsService: '@app.retrieve_contract_emails_service'
+
+    app.send_contract_emails_service:
+        class: App\Service\SendContractEmailsToEndpointService
+        arguments: [
+            '@app.message_received_repository',
+            '@logger',
+            '%env(resolve:WEBHOOK_ENDPOINT)%',
+            '%env(int:MAX_ATTEMPTS)%'
+        ]
+
+    App\Service\SendContractEmailsToEndpointService: '@app.send_contract_emails_service'
+
+    app.clear_old_messages_service:
+        class: App\Service\ClearOldMessagesService
+        arguments: [
+            '@app.message_received_repository',
+            '@doctrine.orm.default_entity_manager'
+        ]
+
+    App\Service\ClearOldMessagesService: '@app.clear_old_messages_service'
