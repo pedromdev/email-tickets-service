@@ -21,8 +21,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
     && composer install \
     && composer dump-env prod \
     && symfony check:requirements \
-    && rm -rf /service/vendor \
-    && composer install --no-dev \
     && rm /usr/local/bin/composer /usr/local/bin/symfony \
     && touch /var/log/cron.log \
     && crontab /etc/cron.d/crontab \
